@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Discount Tales — Dropship Store</title>
+  <meta name="description" content="Kant‑en‑klare dropshipping webshop. Koppel later AliExpress API en Stripe Checkout. GitHub Pages ready." />
+  <meta name="theme-color" content="#0b1020">
+  <meta property="og:title" content="Discount Tales — Dropship Store" />
+  <meta property="og:description" content="Kant‑en‑klare dropshipping webshop. Koppel later AliExpress API en Stripe Checkout." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1200&auto=format&fit=crop" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%23517eff'/%3E%3Ctext x='50' y='60' text-anchor='middle' font-size='56' font-family='Arial' fill='white'%3EDS%3C/text%3E%3C/svg%3E" />
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: { 500: '#517eff', 600: '#3b61e6', 700: '#2f4bbc' } },
+          boxShadow: { soft: '0 10px 30px rgba(0,0,0,.12)' }
+        }
+      }
+    }
+  </script>
+  <style>
+    html,body{background:#0b1020;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .lift{transition:transform .2s ease, box-shadow .2s ease}
+    .lift:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(0,0,0,.18)}
+  </style>
+</head>
+<body class="text-white">
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-[#0b1020]/80 backdrop-blur border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-brand-500 grid place-items-center font-black">DT</div>
+        <div class="leading-tight">
+          <strong class="block">Discount Tales</strong>
+          <span class="text-xs text-white/60">Dropship Store</span>
+        </div>
+      </a>
+      <nav class="hidden md:flex items-center gap-6 text-sm text-white/80">
+        <a href="#shop" class="hover:text-white">Shop</a>
+        <a href="#faq" class="hover:text-white">FAQ</a>
+        <a href="#contact" class="hover:text-white">Contact</a>
+      </nav>
+      <button id="open-cart" class="relative px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/20 transition">
+        <span class="mr-2">Winkelwagen</span>
+        <span id="cart-count" class="inline-flex items-center justify-center text-xs min-w-[22px] h-[22px] px-1 rounded-full bg-brand-500 font-semibold">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0 -z-10" aria-hidden="true">
+      <div class="w-[900px] h-[900px] bg-brand-700/30 rounded-full blur-3xl absolute -top-72 -left-40"></div>
+      <div class="w-[800px] h-[800px] bg-brand-500/20 rounded-full blur-3xl absolute -bottom-60 -right-20"></div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 pt-14 pb-10 grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">Start je <span class="text-brand-500">dropshipping</span> shop vandaag.</h1>
+        <p class="mt-4 text-white/70">Deze statische site werkt direct op GitHub Pages. Voeg later de <strong>AliExpress API</strong> en <strong>Stripe Checkout</strong> toe – de haken zijn al voorbereid.</p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a href="#shop" class="px-5 py-3 rounded-2xl bg-brand-500 hover:bg-brand-600 font-semibold lift">Shop nu</a>
+          <button id="btn-import" class="px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-semibold lift">Importeer producten</button>
+        </div>
+        <p class="mt-2 text-xs text-white/50">Import gebruikt nu een openbare testbron. Product‑API’s zoals AliExpress vereisen een server‑side proxy voor je sleutel.</p>
+      </div>
+      <div class="rounded-3xl p-4 bg-white/5 shadow-soft">
+        <img alt="Shopping" class="rounded-2xl" src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1400&auto=format&fit=crop"/>
+      </div>
+    </div>
+  </section>
+
+  <!-- Shop Tools -->
+  <section id="shop" class="max-w-7xl mx-auto px-4 py-10">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+      <div>
+        <h2 class="text-2xl font-bold">Producten</h2>
+        <p class="text-white/60 text-sm">Zoek, sorteer en voeg toe aan je winkelwagen. Data laadt standaard uit een demo‑API.</p>
+      </div>
+      <div class="flex gap-2">
+        <input id="search" type="search" placeholder="Zoek..." class="px-4 py-2 rounded-2xl bg-white/10 border border-white/10 focus:outline-none w-56"/>
+        <select id="sort" class="px-4 py-2 rounded-2xl bg-white/10 border border-white/10 focus:outline-none">
+          <option value="popularity">Populair</option>
+          <option value="price-asc">Prijs ↑</option>
+          <option value="price-desc">Prijs ↓</option>
+          <option value="newest">Nieuwste</option>
+        </select>
+      </div>
+    </div>
+    <div id="grid" class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+  </section>
+
+  <!-- FAQ + Contact -->
+  <section id="faq" class="max-w-7xl mx-auto px-4 pb-20">
+    <h3 class="text-2xl font-bold mb-4">FAQ</h3>
+    <details class="bg-white/5 rounded-2xl p-4 mb-3">
+      <summary class="font-semibold cursor-pointer">Hoe voeg ik Stripe toe?</summary>
+      <p class="mt-2 text-white/70 text-sm">Vul in <code>CONFIG.stripe.checkoutLink</code> je Checkout‑link in voor een snelle start. Voor dynamische carts (artikelen en aantallen) gebruik je een serverless backend die een Checkout Session aanmaakt.</p>
+    </details>
+    <details class="bg-white/5 rounded-2xl p-4 mb-3">
+      <summary class="font-semibold cursor-pointer">Hoe koppel ik AliExpress?</summary>
+      <p class="mt-2 text-white/70 text-sm">De officiële AliExpress/Open Platform API vereist een <em>server‑side</em> signering (app key/secret). Gebruik een proxy/backend (Vercel/Netlify/Cloudflare) en vul het endpoint in <code>CONFIG.aliexpress.baseUrl</code>.</p>
+    </details>
+    <div id="contact" class="bg-white/5 rounded-2xl p-4">
+      <h4 class="font-semibold">Contact</h4>
+      <p class="text-white/70 text-sm">Stuur je vragen naar <a class="underline" href="mailto:support@example.com">support@example.com</a>.</p>
+    </div>
+  </section>
+
+  <!-- Cart Drawer -->
+  <div id="cart" class="fixed inset-0 z-50 hidden" aria-hidden="true">
+    <div id="cart-overlay" class="absolute inset-0 bg-black/50"></div>
+    <aside class="absolute right-0 top-0 h-full w-full max-w-md bg-[#0f1430] border-l border-white/10 p-6 overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h4 class="text-xl font-bold">Winkelwagen</h4>
+        <button id="close-cart" class="p-2 rounded-xl bg-white/10 hover:bg-white/20">Sluit</button>
+      </div>
+      <div id="cart-items" class="mt-6 flex flex-col gap-4"></div>
+      <div class="mt-6 border-t border-white/10 pt-4 flex items-center justify-between">
+        <div>
+          <p class="text-sm text-white/60">Subtotaal</p>
+          <p id="cart-subtotal" class="text-2xl font-extrabold">€0,00</p>
+        </div>
+        <button id="checkout" class="px-5 py-3 rounded-2xl bg-brand-500 hover:bg-brand-600 font-semibold">Afrekenen</button>
+      </div>
+      <p class="mt-3 text-xs text-white/50">Afrekenen stuurt door naar Stripe (configureer je link in de CONFIG hieronder).</p>
+    </aside>
+  </div>
+
+  <!-- Checkout Page (Order Review) -->
+  <div id="checkout-page" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50" id="checkout-overlay"></div>
+    <main class="absolute inset-0 overflow-y-auto p-6 grid place-items-center">
+      <div class="w-full max-w-3xl bg-[#0f1430] border border-white/10 rounded-2xl shadow-soft p-6">
+        <div class="flex items-start justify-between">
+          <h3 class="text-2xl font-bold">Bestelling controleren</h3>
+          <button id="close-checkout" class="p-2 rounded-xl bg-white/10 hover:bg-white/20">Sluit</button>
+        </div>
+        <div class="mt-4 grid md:grid-cols-2 gap-6">
+          <section>
+            <h4 class="font-semibold mb-2">Je artikelen</h4>
+            <div id="checkout-items" class="space-y-3 max-h-72 overflow-y-auto"></div>
+            $1
+              <div class="flex justify-between"><span>BTW <span id="co-vat-rate">0%</span></span><span id="co-vat">€0,00</span></div>
+              <div class="flex justify-between font-bold text-lg mt-2"><span>Totaal</span><span id="co-total">€0,00</span></div>
+            </div>
+          </section>
+          <section>
+            <h4 class="font-semibold mb-2">Klantgegevens</h4>
+            $1
+              <select id="co-country" class="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/10" required>
+                <option value="">Kies land (EU)</option>
+                <option value="BE">België</option>
+                <option value="NL">Nederland</option>
+                <option value="DE">Duitsland</option>
+                <option value="FR">Frankrijk</option>
+                <option value="ES">Spanje</option>
+                <option value="IT">Italië</option>
+                <option value="PT">Portugal</option>
+                <option value="LU">Luxemburg</option>
+                <option value="AT">Oostenrijk</option>
+                <option value="IE">Ierland</option>
+              </select>
+              <select id="co-shipping-method" class="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/10" required>
+              </select>
+              <input id="co-name" class="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/10" placeholder="Volledige naam" required />
+              <input id="co-email" type="email" class="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/10" placeholder="E‑mail" required />
+              <input id="co-address" class="w-full px-4 py-2 rounded-xl bg-white/10 border border-white/10" placeholder="Adres (optioneel)" />
+              <label class="flex items-center gap-2 text-sm text-white/70">
+                <input id="co-terms" type="checkbox" class="accent-brand-500" required />
+                Ik ga akkoord met de algemene voorwaarden.
+              </label>
+              <button id="pay-now" type="submit" class="w-full px-5 py-3 rounded-2xl bg-brand-500 hover:bg-brand-600 font-semibold">Bevestig & Betaal</button>
+              <p class="text-xs text-white/50">Na bevestiging ga je door naar Stripe om veilig af te rekenen.</p>
+            </form>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Templates -->
+  <template id="product-card-tpl">
+    <article class="bg-white/5 rounded-2xl p-3 lift border border-white/10 flex flex-col h-full">
+      <div class="relative aspect-[4/3] overflow-hidden rounded-xl bg-white/5">
+        <img class="w-full h-full object-cover"/>
+        <span class="badge absolute left-2 top-2 text-xs px-2 py-1 rounded-xl bg-brand-600/80">Nieuw</span>
+      </div>
+      <h4 class="mt-3 font-semibold"></h4>
+      <p class="text-sm text-white/60 line-clamp-2"></p>
+      <div class="mt-3 flex items-center justify-between">
+        <div class="font-extrabold"></div>
+        <button class="add px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm">In winkelwagen</button>
+      </div>
+    </article>
+  </template>
+
+  <template id="cart-item-tpl">
+    <div class="flex items-center gap-3">
+      <img class="w-16 h-16 rounded-xl object-cover"/>
+      <div class="flex-1">
+        <p class="font-semibold leading-tight"></p>
+        <div class="text-sm text-white/60">€<span class="price"></span> • <button class="dec hover:underline">−</button> <span class="qty"></span> <button class="inc hover:underline">+</button></div>
+      </div>
+      <button class="remove p-2 rounded-xl bg-white/10 hover:bg-white/20">Verwijder</button>
+    </div>
+  </template>
+
+  <!-- App Script -->
+  <script>
+    // ==========================
+    // CONFIG — pas aan voor jouw shop
+    // ==========================
+    $1
+      tax: {
+        defaultCountry: 'BE',
+        ratesByCountry: { BE:21, NL:21, DE:19, FR:20, ES:21, IT:22, PT:23, LU:17, AT:20, IE:23 },
+        applyOnShipping: false // zet op true als BTW ook over verzendkosten moet
+      },
+      shipping: {
+        methods: [
+          { id: 'standard', label: 'Standaard (3–7 dagen)', price: 0 },
+          { id: 'tracked',  label: 'Tracked (2–5 dagen)',  price: 4.99 },
+          { id: 'express',  label: 'Express (1–3 dagen)',  price: 14.99 }
+        ]
+      },
+      stripe: {
+        // Snelste manier: een vaste Checkout‑link van Stripe (geen backend nodig)
+        checkoutLink: 'https://JOUW_STRIPE_CHECKOUT_LINK_HIER' // ← vervang dit met jouw Stripe Checkout-link
+        // Geavanceerd (optioneel): eigen endpoint dat een Checkout Session maakt
+        // createCheckoutSessionUrl: 'https://jouwdomein.com/api/checkout'
+      },
+      aliexpress: {
+        // Voor de live AliExpress API: gebruik een server‑side proxy die je request signeert.
+        // Vul hieronder je proxy endpoint in (NIET je app secret in de frontend plaatsen!).
+        baseUrl: 'https://VERCEL_API_URL_HIER/api/aliexpress' // ← vervang dit met jouw Vercel-URL
+        // Map bronvelden → ons Product schema
+        map: (item) => ({
+          id: String(item.id || item.productId || crypto.randomUUID()),
+          title: item.title || item.productTitle || 'Product',
+          description: item.description || item.productDescription || '—',
+          price: Number(item.price || item.salePrice || 9.99),
+          image: item.image || item.productMainImageUrl || 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop',
+          createdAt: Date.now()
+        })
+      },
+      // Demo bron (werkt meteen op GitHub Pages)
+      demoFeed: 'https://fakestoreapi.com/products'
+    }
+
+    // ==========================
+    // STATE
+    // ==========================
+    const state = {
+      products: [],
+      cart: JSON.parse(localStorage.getItem('cart') || '[]'),
+      filters: { q: '', sort: 'popularity' }
+    }
+
+    // ==========================
+    // UTIL
+    // ==========================
+    const € = (n) => `${CONFIG.currencySymbol}${n.toFixed(2).replace('.', ',')}`
+    const saveCart = () => localStorage.setItem('cart', JSON.stringify(state.cart))
+    const findCart = (id) => state.cart.find(i => i.id === id)
+    const cartSubtotal = () => state.cart.reduce((s,i)=> s + (i.price * i.qty), 0)
+
+    function addToCart(p, qty=1){ const x=findCart(p.id); x? x.qty+=qty : state.cart.push({...p, qty}); saveCart(); renderCart(); updateCartCount() }
+    function updateQty(id, d){ const x=findCart(id); if(!x) return; x.qty+=d; if(x.qty<=0) state.cart=state.cart.filter(i=>i.id!==id); saveCart(); renderCart(); updateCartCount() }
+    function removeFromCart(id){ state.cart = state.cart.filter(i=>i.id!==id); saveCart(); renderCart(); updateCartCount() }
+    function updateCartCount(){ document.getElementById('cart-count').textContent = state.cart.reduce((s,i)=>s+i.qty,0) }
+
+    // ==========================
+    // RENDER
+    // ==========================
+    function renderGrid(){
+      const grid = document.getElementById('grid'); grid.innerHTML = ''
+      let list = state.products.filter(p => p.title.toLowerCase().includes(state.filters.q))
+      if(state.filters.sort==='price-asc') list.sort((a,b)=>a.price-b.price)
+      else if(state.filters.sort==='price-desc') list.sort((a,b)=>b.price-a.price)
+      else if(state.filters.sort==='newest') list.sort((a,b)=>b.createdAt-a.createdAt)
+      const tpl=document.getElementById('product-card-tpl')
+      list.forEach(p=>{ const node=tpl.content.cloneNode(true)
+        node.querySelector('img').src=p.image
+        node.querySelector('h4').textContent=p.title
+        node.querySelector('p').textContent=p.description
+        node.querySelector('.font-extrabold').textContent=€(p.price)
+        node.querySelector('.add').addEventListener('click',()=>addToCart(p))
+        grid.appendChild(node)
+      })
+    }
+
+    function renderCart(){
+      const wrap=document.getElementById('cart-items'); wrap.innerHTML=''
+      const tpl=document.getElementById('cart-item-tpl')
+      state.cart.forEach(item=>{
+        const n=tpl.content.cloneNode(true)
+        n.querySelector('img').src=item.image
+        n.querySelector('p').textContent=item.title
+        n.querySelector('.price').textContent=item.price.toFixed(2).replace('.', ',')
+        n.querySelector('.qty').textContent=item.qty
+        n.querySelector('.inc').addEventListener('click',()=>updateQty(item.id,+1))
+        n.querySelector('.dec').addEventListener('click',()=>updateQty(item.id,-1))
+        n.querySelector('.remove').addEventListener('click',()=>removeFromCart(item.id))
+        wrap.appendChild(n)
+      })
+      document.getElementById('cart-subtotal').textContent = €(cartSubtotal())
+    }
+
+    // ==========================
+    // DATA LOADERS
+    // ==========================
+    async function importDemo(){
+      const res = await fetch(CONFIG.demoFeed); const data = await res.json()
+      state.products = data.map(d=>({ id:String(d.id), title:d.title, description:d.description, price:Number(d.price), image:d.image, createdAt:Date.now() - Math.floor(Math.random()*86400000*10) }))
+      renderGrid()
+    }
+
+    async function importAliExpress(){
+      if(!CONFIG.aliexpress.baseUrl){
+        await importDemo(); return
+      }
+      try{
+        const res = await fetch(CONFIG.aliexpress.baseUrl+ '?keywords=electronics') // jouw proxy mag eigen queryparameters gebruiken
+        const json = await res.json()
+        const items = Array.isArray(json) ? json : json.data || json.items || json.result || []
+        state.products = items.map(CONFIG.aliexpress.map)
+        renderGrid()
+      }catch(e){ console.error(e); alert('AliExpress import mislukt — toon demo‑producten i.p.v.'); await importDemo() }
+    }
+
+    // ==========================
+    // CHECKOUT
+    // ==========================
+    async function startCheckout(){
+      if(CONFIG.stripe.checkoutLink){ window.location.href = CONFIG.stripe.checkoutLink; return }
+      alert('Stel je Stripe Checkout‑link in binnen CONFIG.stripe.checkoutLink')
+    }
+
+    // ==========================
+    // CHECKOUT PAGE HELPERS
+    // ==========================
+    function ensureCheckoutDefaults(){
+      const countryEl = document.getElementById('co-country');
+      if(countryEl && !countryEl.value){ countryEl.value = CONFIG.tax.defaultCountry || 'BE'; }
+      const shipEl = document.getElementById('co-shipping-method');
+      if(shipEl && !shipEl.options.length){
+        CONFIG.shipping.methods.forEach(m=>{
+          const o=document.createElement('option');
+          o.value=m.id; o.textContent=`${m.label} — ${€(m.price)}`; shipEl.appendChild(o);
+        });
+        shipEl.value = CONFIG.shipping.methods[0]?.id || 'standard';
+      }
+    }
+    function getSelectedShippingPrice(){
+      const id = (document.getElementById('co-shipping-method')||{}).value;
+      const m = CONFIG.shipping.methods.find(x=>x.id===id) || CONFIG.shipping.methods[0];
+      return m ? m.price : 0;
+    }
+    function getSelectedVatRate(){
+      const cc = (document.getElementById('co-country')||{}).value || CONFIG.tax.defaultCountry || 'BE';
+      return CONFIG.tax.ratesByCountry[cc] ?? 21;
+    }
+    // ==========================
+    function renderCheckoutSummary(){
+      const wrap = document.getElementById('checkout-items');
+      wrap.innerHTML = '';
+      state.cart.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-3';
+        row.innerHTML = `
+          <img src="${item.image}" class="w-16 h-16 rounded-xl object-cover"/>
+          <div class="flex-1">
+            <p class="font-semibold leading-tight">${item.title}</p>
+            <p class="text-sm text-white/60">${CONFIG.currencySymbol}${item.price.toFixed(2).replace('.', ',')} × ${item.qty}</p>
+          </div>
+          <div class="font-semibold">${CONFIG.currencySymbol}${(item.price*item.qty).toFixed(2).replace('.', ',')}</div>
+        `;
+        wrap.appendChild(row);
+      });
+      const subtotal = cartSubtotal();
+      const shipping = getSelectedShippingPrice();
+      const vatRate = getSelectedVatRate();
+      const vatBase = CONFIG.tax.applyOnShipping ? (subtotal + shipping) : subtotal;
+      const vatAmount = +(vatBase * (vatRate/100)).toFixed(2);
+      document.getElementById('co-subtotal').textContent = €(subtotal);
+      document.getElementById('co-shipping').textContent = €(shipping);
+      document.getElementById('co-vat-rate').textContent = `${vatRate}%`;
+      document.getElementById('co-vat').textContent = €(vatAmount);
+      document.getElementById('co-total').textContent = €(subtotal + shipping + vatAmount);
+    }
+
+    function openCheckout(){
+      if(state.cart.length === 0){ alert('Je winkelwagen is leeg.'); return }
+      ensureCheckoutDefaults();
+      renderCheckoutSummary();
+      document.getElementById('checkout-page').classList.remove('hidden');
+    }
+
+    function closeCheckout(){
+      document.getElementById('checkout-page').classList.add('hidden');
+    }
+
+    // ==========================
+    // EVENTS
+    // ==========================
+    document.getElementById('search').addEventListener('input',e=>{ state.filters.q=e.target.value.toLowerCase(); renderGrid() })
+    document.getElementById('sort').addEventListener('change',e=>{ state.filters.sort=e.target.value; renderGrid() })
+    document.getElementById('open-cart').addEventListener('click',()=> document.getElementById('cart').classList.remove('hidden'))
+    document.getElementById('close-cart').addEventListener('click',()=> document.getElementById('cart').classList.add('hidden'))
+    document.getElementById('cart-overlay').addEventListener('click',()=> document.getElementById('cart').classList.add('hidden'))
+    document.getElementById('checkout').addEventListener('click', openCheckout)
+    document.getElementById('close-checkout').addEventListener('click', closeCheckout)
+    document.getElementById('checkout-overlay').addEventListener('click', closeCheckout)
+    document.getElementById('checkout-form').addEventListener('submit', (e)=>{ e.preventDefault(); startCheckout() })
+    document.getElementById('co-country').addEventListener('change', renderCheckoutSummary)
+    document.getElementById('co-shipping-method').addEventListener('change', renderCheckoutSummary)=>{ e.preventDefault(); startCheckout() })
+    document.getElementById('btn-import').addEventListener('click', importAliExpress)
+
+    // ==========================
+    // INIT
+    // ==========================
+    ;(async function init(){
+      await importDemo(); // laad direct demo‑producten zodat de shop "klaar" is
+      renderCart(); updateCartCount()
+    })()
+  </script>
+
+  <footer class="border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-4 py-10 text-sm text-white/60">
+      <p><strong>Belangrijk:</strong> Plaats <em>nooit</em> je AliExpress of Stripe geheime sleutels in dit openbare bestand. Gebruik een serverless proxy/back‑end.</p>
+      <p class="mt-2">© <span id="year"></span> Discount Tales</p>
+    </div>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear()</script>
+</body>
+</html>
